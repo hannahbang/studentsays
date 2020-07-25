@@ -23,13 +23,38 @@ app.get("/", (req, res) => {
   res.render("index.html");
 });
 
-app.get("/login", (req, res) => {
-  res.render("login.html");
-});
+app.route("/login")
+  .get((req, res) => {
+    res.render("login.html");
+  })
+  .post(async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
 
-app.get("/register", (req, res) => {
-  res.render("register.html");
-});
+    const user = await userModel.findOne({ username, password });
+    if (user) {
+      res.send("Correct");
+    } else {
+      res.send("Incorrect");
+    }
+  });
+
+app.route("/register")
+  .get((req, res) => {
+    res.render("register.html");
+  })
+  .post((req, res) => {
+    const newUser = new userModel({
+      name: req.body.name,
+      email: req.body.email,
+      username: req.body.username,
+      password: req.body.password
+    });
+    newUser.save((err, user) => {
+      if (err) throw err;
+      res.redirect("/feed");
+    });
+  })
 
 app.get("/feed", (req,res) => {
   res.render("feed.html");
