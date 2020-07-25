@@ -23,23 +23,21 @@ app.get("/", (req, res) => {
   res.render("index.html");
 });
 
-// /login
 app.get("/login", (req, res) => {
   res.render("login.html");
 });
 
-// /register
 app.get("/register", (req, res) => {
   res.render("register.html");
-})
-// /dashboard
-app.get("/dashboard", (req,res) => {
-  res.render("dashboard.html");
-})
-// profile
-app.get("/profile"), (req, res) => {
+});
+
+app.get("/feed", (req,res) => {
+  res.render("feed.html");
+});
+
+app.get("/profile", (req, res) => {
   res.render("profile.html");
-}
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
