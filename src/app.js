@@ -1,11 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const passwordHash = require("password-hash");
 const { userModel, postModel } = require("./models.js");
 
 app = express();
 
 app.use(bodyParser());
+app.use(cookieParser());
 
 // Setting view rendering engine
 app.set('view engine', 'ejs');
@@ -19,6 +23,18 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
+const authTokens = {};
+
+const generateAuthToken = () => {
+  return crypto.randomBytes(30).toString('hex');
+}
+
+app.use((req, res, next) => {
+  const authToken = req.cookies["authToken"];
+  req.user = authTokens[authToken];
+  next();
+});
+
 app.get("/", (req, res) => {
   res.render("index.html");
 });
@@ -31,11 +47,20 @@ app.route("/login")
     const username = req.body.username;
     const password = req.body.password;
 
-    const user = await userModel.findOne({ username, password });
+    const user = await userModel.findOne({ username });
     if (user) {
-      res.send("Correct");
+      const correctPassword = passwordHash.verify(password, user.password);
+      if (correctPassword) {
+        const authToken = generateAuthToken();
+        authTokens[authToken] = user;
+        res.cookie('authToken', authToken);
+
+        res.redirect("/feed");
+      } else {
+        res.send("Incorrect password.");
+      }
     } else {
-      res.send("Incorrect");
+      res.send("Incorrect username.");
     }
   });
 
@@ -48,20 +73,34 @@ app.route("/register")
       name: req.body.name,
       email: req.body.email,
       username: req.body.username,
-      password: req.body.password
+      password: passwordHash.generate(req.body.password)
     });
     newUser.save((err, user) => {
       if (err) throw err;
       res.redirect("/feed");
     });
-  })
+  });
+
+app.get("/logout", (req, res) => {
+  delete authTokens[res.cookie("authToken")];
+  res.clearCookie("authToken");
+  res.redirect("/");
+})
 
 app.get("/feed", (req,res) => {
-  res.render("feed.html");
+  if (req.user) {
+    res.render("feed.html");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/profile", (req, res) => {
-  res.render("profile.html");
+  if (req.user) {
+    res.render("profile.html");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 const PORT = process.env.PORT || 3000;
