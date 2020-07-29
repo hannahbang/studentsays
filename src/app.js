@@ -32,11 +32,18 @@ const generateAuthToken = () => {
 app.use((req, res, next) => {
   const authToken = req.cookies["authToken"];
   req.user = authTokens[authToken];
+
+  res.locals.req = req;
+
   next();
 });
 
 app.get("/", (req, res) => {
-  res.render("index.html");
+  if (req.user) {
+    res.redirect("/feed");
+  } else {
+    res.render("index.html");
+  }
 });
 
 app.route("/login")
@@ -95,9 +102,78 @@ app.get("/feed", (req,res) => {
   }
 });
 
-app.get("/profile", (req, res) => {
+app.get("/user/:username", async (req, res) => {
+  const username = req.params.username;
   if (req.user) {
-    res.render("profile.html");
+    const user = await userModel.findOne({ username });
+    if (user) {
+      res.render("user.html", { user });
+    } else {
+      res.send("That user doesn't exist.");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.route("/user/:username/post")
+  .get(async (req, res) => {
+    const username = req.params.username;
+    if (req.user) {
+      const user = await userModel.findOne({ username });
+      if (user) {
+        if (req.user.username == user.username) {
+          res.render("post.html", { user });
+        } else {
+          res.send("You don't have permission to make a post for this profile.");
+        }
+      } else {
+        res.send("That user doesn't exist.");
+      }
+    } else {
+      res.redirect("/login");
+    }
+  })
+  .post(async (req, res) => {
+    const username = req.params.username;
+    if (req.user) {
+      const user = await userModel.findOne({ username });
+      if (user) {
+        if (req.user.username == user.username) {
+          const title = req.body.title;
+          const content = req.body.content;
+          const creatorId = user._id;
+
+          const newPost = new postModel({ title, content, creatorId });
+          newPost.save((err, post) => {
+            if (err) throw err;
+
+            res.redirect("/user/" + user.username);
+          })
+        } else {
+          res.send("You don't have permission to make a post for this profile.");
+        }
+      } else {
+        res.send("That user doesn't exist.");
+      }
+    } else {
+      res.redirect("/login");
+    }
+  });
+
+app.get("/user/:username/edit", async (req, res) => {
+  const username = req.params.username;
+  if (req.user) {
+    const user = await userModel.findOne({ username });
+    if (user) {
+      if (req.user.username == user.username) {
+        res.render("edit-user.html", { user });
+      } else {
+        res.send("You don't have permission to edit this profile.");
+      }
+    } else {
+      res.send("That user doesn't exist.");
+    }
   } else {
     res.redirect("/login");
   }
