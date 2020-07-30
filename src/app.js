@@ -162,23 +162,40 @@ app.route("/user/:username/post")
     }
   });
 
-app.get("/user/:username/edit", async (req, res) => {
-  const username = req.params.username;
-  if (req.user) {
-    const user = await userModel.findOne({ username });
-    if (user) {
-      if (req.user.username == user.username) {
-        res.render("edit-user.html", { user });
+app.route("/user/:username/edit")
+  .get(async (req, res) => {
+    const username = req.params.username;
+    if (req.user) {
+      const user = await userModel.findOne({ username });
+      if (user) {
+        if (req.user.username == user.username) {
+          res.render("edit-user.html", { user });
+        } else {
+          res.send("You don't have permission to edit this profile.");
+        }
       } else {
-        res.send("You don't have permission to edit this profile.");
+        res.send("That user doesn't exist.");
       }
     } else {
-      res.send("That user doesn't exist.");
+      res.redirect("/login");
     }
-  } else {
-    res.redirect("/login");
-  }
-});
+  })
+  .post(async (req, res) => {
+    const updateUserObj = {
+      name: req.body.name,
+      email: req.body.email,
+      username: req.body.username
+    }
+
+    await userModel.findOneAndUpdate({ username: req.user.username }, updateUserObj);
+    const user = await userModel.findOne({ username: req.user.username });
+
+    // RESETTING AUTH TOKEN ALIAS
+    const authToken = req.cookies.authToken;
+    authTokens[authToken] = user;
+
+    res.redirect("/user/" + user.username)
+  })
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

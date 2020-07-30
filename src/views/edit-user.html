@@ -47,7 +47,17 @@
       </div>
     </nav>
 
-    <h1>Edit User</h1>
+    <div class="container">
+      <h1>Edit User</h1>
+
+      <form method="post">
+        <input class="form-control mb-2" type="text" name="name" placeholder="Name" value="<%= req.user.name %>">
+        <input class="form-control mb-2" type="email" name="email" placeholder="Email" value="<%= req.user.email %>">
+        <input class="form-control mb-2" type="text" name="username" placeholder="Username" value="<%= req.user.username %>">
+
+        <input class="btn btn-primary" type="submit" value="Edit user!">
+      </form>
+    </div>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
       crossorigin="anonymous"></script>
