@@ -94,9 +94,10 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 })
 
-app.get("/feed", (req,res) => {
+app.get("/feed", async (req,res) => {
   if (req.user) {
-    res.render("feed.html");
+    const posts = await postModel.find({});
+    res.render("feed.html", { posts });
   } else {
     res.redirect("/login");
   }
@@ -148,7 +149,7 @@ app.route("/user/:username/post")
           newPost.save((err, post) => {
             if (err) throw err;
 
-            res.redirect("/user/" + user.username);
+            res.redirect("/feed");
           })
         } else {
           res.send("You don't have permission to make a post for this profile.");
