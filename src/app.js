@@ -108,7 +108,9 @@ app.get("/user/:username", async (req, res) => {
   if (req.user) {
     const user = await userModel.findOne({ username });
     if (user) {
-      res.render("user.html", { user });
+      // GET POSTS
+      const posts = await postModel.find({ creatorId: user._id });
+      res.render("user.html", { user, posts });
     } else {
       res.send("That user doesn't exist.");
     }
