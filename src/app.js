@@ -103,21 +103,39 @@ app.get("/feed", async (req,res) => {
   }
 });
 
-app.get("/user/:username", async (req, res) => {
-  const username = req.params.username;
-  if (req.user) {
-    const user = await userModel.findOne({ username });
-    if (user) {
-      // GET POSTS
-      const posts = await postModel.find({ creatorId: user._id });
-      res.render("user.html", { user, posts });
+app.route("/user/:username")
+  .get(async (req, res) => {
+    const username = req.params.username;
+    if (req.user) {
+      const user = await userModel.findOne({ username });
+      if (user) {
+        // GET POSTS
+        const posts = await postModel.find({ creatorId: user._id });
+        res.render("user.html", { user, posts });
+      } else {
+        res.send("That user doesn't exist.");
+      }
     } else {
-      res.send("That user doesn't exist.");
+      res.redirect("/login");
     }
-  } else {
-    res.redirect("/login");
-  }
-});
+  })
+  .delete(async (req, res) => {
+    if (req.user) {
+      // REMOVING ALL USER POSTS FROM DB
+      const posts = await postModel.deleteMany({ creatorId: req.user._id });
+
+      // REMOVING USER FROM DB
+      const user = await userModel.deleteOne({ _id: req.user._id });
+
+      // REMOVING USER FROM COOKIES
+      const authToken = res.cookie("authToken");
+      delete authTokens[authToken];
+      res.clearCookie("authToken");
+      res.redirect("/");
+    } else {
+      res.redirect("/login");
+    }
+  });
 
 app.route("/user/:username/post")
   .get(async (req, res) => {
