@@ -52,6 +52,7 @@
       <% for (post of posts) { %>
         <div class="post">
           <h3><%= post.title %></h3>
+          <small><%= post.datetimePosted.toLocaleDateString("en-US") %></small>
           <p>
             <%= post.content %>
           </p>

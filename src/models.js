@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
 const postSchema = new mongoose.Schema({
   title: String,
   content: String,
+  datetimePosted: Date,
   creatorId: String
 });
 
