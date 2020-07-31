@@ -56,9 +56,12 @@
       <div class="posts">
         <% for (post of posts) { %>
           <div class="post">
-            <h3><%= post.title %></h3>
-            <small><%= post.datetimePosted.toLocaleDateString("en-US") %></small>
-            <p><%= post.content %></p>
+            <h3><%= post._doc.title %></h3>
+            <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+            <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
+            <p>
+              <%= post._doc.content %>
+            </p>
           </div>
         <% } %>
       </div>

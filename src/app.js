@@ -96,7 +96,14 @@ app.get("/logout", (req, res) => {
 
 app.get("/feed", async (req,res) => {
   if (req.user) {
-    const posts = await postModel.find({}).sort({ datetimePosted: -1 });
+    let posts = await postModel.find({}).sort({ datetimePosted: -1 });
+
+    // ADDING CREATOR TO EACH POST
+    for (var i = 0; i < posts.length; i++) {
+      let creator = await userModel.findOne({ _id: posts[i].creatorId });
+      posts[i] = { ...posts[i], creator };
+    }
+
     res.render("feed.html", { posts });
   } else {
     res.redirect("/login");
@@ -110,7 +117,14 @@ app.route("/user/:username")
       const user = await userModel.findOne({ username });
       if (user) {
         // GET POSTS
-        const posts = await postModel.find({ creatorId: user._id }).sort({ datetimePosted: -1 });
+        let posts = await postModel.find({ creatorId: user._id }).sort({ datetimePosted: -1 });
+
+        // ADDING CREATOR TO EACH POST
+        for (var i = 0; i < posts.length; i++) {
+          let creator = await userModel.findOne({ _id: posts[i].creatorId });
+          posts[i] = { ...posts[i], creator };
+        }
+
         res.render("user.html", { user, posts });
       } else {
         res.send("That user doesn't exist.");
