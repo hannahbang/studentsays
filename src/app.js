@@ -100,7 +100,12 @@ app.get("/feed", async (req,res) => {
 
     // ADDING CREATOR TO EACH POST
     for (var i = 0; i < posts.length; i++) {
-      let creator = await userModel.findOne({ _id: posts[i].creatorId });
+      let creator;
+      if (!posts[i].anonymous) {
+        creator = await userModel.findOne({ _id: posts[i].creatorId });
+      } else {
+        creator = null;
+      }
       posts[i] = { ...posts[i], creator };
     }
 
@@ -177,9 +182,10 @@ app.route("/user/:username/post")
         if (req.user.username == user.username) {
           const title = req.body.title;
           const content = req.body.content;
+          const anonymous = req.body.anonymous == "on" ? true : false;
           const creatorId = user._id;
 
-          const newPost = new postModel({ title, content, creatorId, datetimePosted: new Date() });
+          const newPost = new postModel({ title, content, creatorId, anonymous, datetimePosted: new Date() });
           newPost.save((err, post) => {
             if (err) throw err;
 

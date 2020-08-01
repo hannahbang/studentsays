@@ -12,7 +12,8 @@ const postSchema = new mongoose.Schema({
   title: String,
   content: String,
   datetimePosted: Date,
-  creatorId: String
+  creatorId: String,
+  anonymous: Boolean
 });
 
 // MODELS
