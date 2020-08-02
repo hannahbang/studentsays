@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Feed</title>
   </head>
@@ -47,22 +47,26 @@
       </div>
     </nav>
 
-    <div class="container">
-      <h1>Feed</h1>
-      <% for (post of posts) { %>
-        <div class="post">
-          <h3><%= post._doc.title %></h3>
-          <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
-          <% if (post.creator) { %>
-            <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
-          <% } else { %>
-            <p><strong>Author:</strong>Anonymous</p>
+    <div class="page-container">
+      <div class="container">
+        <h1>Feed</h1>
+        <div class="feed">
+          <% for (post of posts) { %>
+            <div class="post">
+              <h3><%= post._doc.title %></h3>
+              <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+              <% if (post.creator) { %>
+                <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
+              <% } else { %>
+                <p><strong>Author:</strong>Anonymous</p>
+              <% } %>
+              <p>
+                <%= post._doc.content %>
+              </p>
+            </div>
           <% } %>
-          <p>
-            <%= post._doc.content %>
-          </p>
         </div>
-      <% } %>
+      </div>
     </div>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

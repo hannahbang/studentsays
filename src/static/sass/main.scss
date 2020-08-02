@@ -1,3 +1,9 @@
+// GLOBAL
 @import "./imports/base.scss";
+
+// COMPONENTS
 @import "./imports/components/grids.scss";
- 
+@import "./imports/components/containers.scss";
+
+// PAGES
+@import "./imports/pages/feed.scss";
