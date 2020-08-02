@@ -1,17 +1,17 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box; }
-
 .split-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 50px;
-  align-items: center; }
-  .split-grid > img {
-    width: 100%; }
+  align-items: center;
+
+  & > img {
+    width: 100%;
+  }
+}
 
 @media (max-width: 768px) {
   .split-grid {
     grid-template-columns: repeat(auto-fill, 100%) !important;
-    grid-gap: 15px; } }
+    grid-gap: 15px;
+  }
+}

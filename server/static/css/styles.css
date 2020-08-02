@@ -6,8 +6,7 @@
 .split-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-gap: 50px;
-  align-items: center; }
+  grid-gap: 50px; }
   .split-grid > img {
     width: 100%; }
 
