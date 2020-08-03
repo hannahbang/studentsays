@@ -115,6 +115,17 @@ app.get("/feed", async (req,res) => {
   }
 });
 
+app.get("/post/:id", (req, res) => {
+  const postId = req.params.id;
+  postModel.findOne({ _id: postId }, (err, post) => {
+    if (err) {
+      res.send("That post doesn't exist.");
+    } else {
+      res.render("post.html", { post });
+    }
+  });
+});
+
 app.route("/user/:username")
   .get(async (req, res) => {
     const username = req.params.username;
@@ -163,7 +174,7 @@ app.route("/user/:username/post")
       const user = await userModel.findOne({ username });
       if (user) {
         if (req.user.username == user.username) {
-          res.render("post.html", { user });
+          res.render("make-post.html", { user });
         } else {
           res.send("You don't have permission to make a post for this profile.");
         }

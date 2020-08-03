@@ -52,13 +52,13 @@
         <h1>Feed</h1>
         <div class="feed">
           <% for (post of posts) { %>
-            <div class="post">
+            <div class="post" onclick="window.location.href = '/post/<%= post._doc._id %>'">
               <h3><%= post._doc.title %></h3>
               <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
               <% if (post.creator) { %>
-                <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
+                <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
               <% } else { %>
-                <p><strong>Author:</strong>Anonymous</p>
+                <div><strong>Author:</strong> Anonymous</div>
               <% } %>
               <p>
                 <%= post._doc.content %>
