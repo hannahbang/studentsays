@@ -76,11 +76,20 @@ app.route("/register")
     res.render("register.html");
   })
   .post((req, res) => {
+    const newUserSchool = {
+      name: req.body.school_name,
+      type: req.body.school_type,
+      location: req.body.school_location
+    };
     const newUser = new userModel({
       name: req.body.name,
       email: req.body.email,
       username: req.body.username,
-      password: passwordHash.generate(req.body.password)
+      password: passwordHash.generate(req.body.password),
+      birthday: req.body.birthday,
+      gender: req.body.gender,
+      ethnicity: req.body.ethnicity,
+      school: newUserSchool
     });
     newUser.save((err, user) => {
       if (err) throw err;
@@ -232,10 +241,19 @@ app.route("/user/:username/edit")
     }
   })
   .post(async (req, res) => {
+    const editUserSchool = {
+      name: req.body.school_name,
+      type: req.body.school_type,
+      location: req.body.school_location
+    };
     const updateUserObj = {
       name: req.body.name,
       email: req.body.email,
-      username: req.body.username
+      username: req.body.username,
+      birthday: req.body.birthday,
+      gender: req.body.gender,
+      ethnicity: req.body.ethnicity,
+      school: editUserSchool
     }
 
     await userModel.findOneAndUpdate({ username: req.user.username }, updateUserObj);

@@ -51,9 +51,23 @@
       <h1>Edit User</h1>
 
       <form method="post">
-        <input class="form-control mb-2" type="text" name="name" placeholder="Name" value="<%= req.user.name %>">
-        <input class="form-control mb-2" type="email" name="email" placeholder="Email" value="<%= req.user.email %>">
-        <input class="form-control mb-2" type="text" name="username" placeholder="Username" value="<%= req.user.username %>">
+        <input class="form-control mb-2" type="text" name="name" placeholder="Name *" required value="<%= req.user.name %>">
+        <input class="form-control mb-2" type="email" name="email" placeholder="Email *" required value="<%= req.user.email %>">
+        <input class="form-control mb-2" type="text" name="username" placeholder="Username *" required value="<%= req.user.username %>">
+
+        <input class="form-control mb-2" type="date" name="birthday" placeholder="Birthday" value="<%= req.user.birthday %>">
+        <input class="form-control mb-2" type="text" name="gender" placeholder="Gender" value="<%= req.user.gender %>">
+        <input class="form-control mb-2" type="text" name="ethnicity" placeholder="Ethnicity" value="<%= req.user.ethnicity %>">
+
+        <% if (req.user.school) { %>
+          <input class="form-control mb-2" type="text" name="school_name" placeholder="School Name" value="<%= req.user.school.name %>">
+        <% } %>
+        <% if (req.user.school) { %>
+          <input class="form-control mb-2" type="text" name="school_type" placeholder="School Type" value="<%= req.user.school.type %>">
+        <% } %>
+        <% if (req.user.school) { %>
+          <input class="form-control mb-2" type="text" name="school_location" placeholder="School Location" value="<%= req.user.school.location %>">
+        <% } %>
 
         <input class="btn btn-primary" type="submit" value="Edit user!">
       </form>

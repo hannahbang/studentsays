@@ -51,20 +51,38 @@
       <h1><%= req.user.name %></h1>
       <p><strong>Username:</strong> <%= req.user.username %></p>
       <p><strong>Email:</strong> <%= req.user.email %></p>
+      <% if (req.user.birthday) { %>
+        <p><strong>Birthday:</strong> <%= req.user.birthday.toLocaleDateString('en-US') %></p>
+      <% } %>
+      <% if (req.user.gender) { %>
+        <p><strong>Gender:</strong> <%= req.user.gender %></p>
+      <% } %>
+      <% if (req.user.ethnicity) { %>
+        <p><strong>Ethnicity:</strong> <%= req.user.ethnicity %></p>
+      <% } %>
+      <% if (req.user.school) { %>
+        <p><strong>School Name:</strong> <%= req.user.school.name %></p>
+        <p><strong>School Type:</strong> <%= req.user.school.type %></p>
+        <p><strong>School Location:</strong> <%= req.user.school.location %></p>
+      <% } %>
 
       <h1>Posts</h1>
-      <div class="posts">
-        <% for (post of posts) { %>
-          <div class="post">
-            <h3><%= post._doc.title %></h3>
-            <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
-            <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
-            <p>
-              <%= post._doc.content %>
-            </p>
-          </div>
-        <% } %>
-      </div>
+      <% if (posts.length != 0) { %>
+        <div class="posts">
+          <% for (post of posts) { %>
+            <div class="post">
+              <h3><%= post._doc.title %></h3>
+              <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+              <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
+              <p>
+                <%= post._doc.content %>
+              </p>
+            </div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <div><small>No posts yet!</small></div>
+      <% } %>
 
       <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
     </div>
