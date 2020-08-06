@@ -50,6 +50,16 @@
     <div class="page-container">
       <div class="container">
         <h1>Feed</h1>
+
+        <select id="filterCategory">
+          <option value="" selected>---------</option>
+          <option value="Academics">Academics</option>
+          <option value="ECs">ECs</option>
+          <option value="Question">Question</option>
+        </select>
+
+        <button onclick="filterByCategory()">Filter!</button>
+
         <div class="feed">
           <% for (post of posts) { %>
             <div class="post" onclick="window.location.href = '/post/<%= post._doc._id %>'">
@@ -60,6 +70,7 @@
               <% } else { %>
                 <div><strong>Author:</strong> Anonymous</div>
               <% } %>
+              <div><strong>Category:</strong> <%= post._doc.category %></div>
               <p>
                 <%= post._doc.content %>
               </p>
@@ -69,6 +80,13 @@
       </div>
     </div>
   </body>
+  <script>
+    function filterByCategory() {
+      const filterCategory = document.getElementById("filterCategory");
+      const value = filterCategory.options[filterCategory.selectedIndex].value;
+      window.location.href = `/feed/?category=${value}`;
+    }
+  </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
       crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"

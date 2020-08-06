@@ -105,7 +105,15 @@ app.get("/logout", (req, res) => {
 
 app.get("/feed", async (req,res) => {
   if (req.user) {
-    let posts = await postModel.find({}).sort({ datetimePosted: -1 });
+    const category = req.query.category;
+
+    let posts;
+
+    if (category) {
+      posts = await postModel.find({ category }).sort({ datetimePosted: -1 })
+    } else {
+      posts = await postModel.find({}).sort({ datetimePosted: -1 });
+    }
 
     // ADDING CREATOR TO EACH POST
     for (var i = 0; i < posts.length; i++) {
@@ -202,10 +210,11 @@ app.route("/user/:username/post")
         if (req.user.username == user.username) {
           const title = req.body.title;
           const content = req.body.content;
+          const category = req.body.category;
           const anonymous = req.body.anonymous == "on" ? true : false;
           const creatorId = user._id;
 
-          const newPost = new postModel({ title, content, creatorId, anonymous, datetimePosted: new Date() });
+          const newPost = new postModel({ title, content, category, datetimePosted: new Date(), creatorId, anonymous });
           newPost.save((err, post) => {
             if (err) throw err;
 
