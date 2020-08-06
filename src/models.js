@@ -21,8 +21,17 @@ const postSchema = new mongoose.Schema({
   anonymous: Boolean
 });
 
+const commentSchema = new mongoose.Schema({
+  postId: String,
+  content: String,
+  datetimePosted: Date,
+  creatorId: String,
+  anonymous: Boolean
+});
+
 // MODELS
 const userModel = mongoose.model("User", userSchema);
 const postModel = mongoose.model("Post", postSchema);
+const commentModel = mongoose.model("Comment", commentSchema);
 
-module.exports = { userModel, postModel };
+module.exports = { userModel, postModel, commentModel };

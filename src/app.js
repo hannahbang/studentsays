@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const passwordHash = require("password-hash");
-const { userModel, postModel } = require("./models.js");
+const { userModel, postModel, commentModel } = require("./models.js");
 
 app = express();
 
@@ -132,16 +132,49 @@ app.get("/feed", async (req,res) => {
   }
 });
 
-app.get("/post/:id", (req, res) => {
-  const postId = req.params.id;
-  postModel.findOne({ _id: postId }, (err, post) => {
-    if (err) {
-      res.send("That post doesn't exist.");
-    } else {
-      res.render("post.html", { post });
-    }
+app.route("/post/:id")
+  .get((req, res) => {
+    const postId = req.params.id;
+    postModel.findOne({ _id: postId }, async (err, post) => {
+      if (err) {
+        res.send("That post doesn't exist.");
+      } else {
+        // ADD CREATOR TO POST
+        const postCreator = await userModel.findOne({ _id: post.creatorId });
+        post = {...post, creator: postCreator }
+
+        // GET ALL COMMENTS
+        const comments = await commentModel.find({ postId });
+
+        // ADDING CREATOR TO EACH COMMENT
+        for (var i = 0; i < comments.length; i++) {
+          let creator;
+          if (!comments[i].anonymous) {
+            creator = await userModel.findOne({ _id: comments[i].creatorId });
+          } else {
+            creator = null;
+          }
+          comments[i] = { ...comments[i], creator };
+        }
+
+        res.render("post.html", { post, comments });
+      }
+    });
+  })
+  .post((req, res) => {
+    const postId = req.params.id;
+    const newComment = new commentModel({
+      postId,
+      content: req.body.content,
+      datetimePosted: new Date(),
+      creatorId: req.user._id,
+      anonymous: req.body.anonymous == "on" ? true : false
+    });
+    newComment.save((err, comment) => {
+      if (err) throw err;
+      res.redirect(`/post/${postId}`);
+    });
   });
-});
 
 app.route("/user/:username")
   .get(async (req, res) => {

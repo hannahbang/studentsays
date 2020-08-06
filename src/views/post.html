@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <title>Login</title>
+    <title>Student Says - <%= post.title %></title>
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-light bg-light">
@@ -53,6 +53,31 @@
       <div class="post">
         <h3><%= post.title %></h3>
       </div>
+
+      <h3>Comments</h3>
+      <% if (comments.length != 0) { %>
+        <div class="comments">
+          <% for (comment of comments) { %>
+            <div class="card comment">
+              <p><%= comment._doc.content %></p>
+              <% if (comment.creator) { %>
+                <div><strong>Author:</strong> <a href="/user/<%= comment.creator.username %>"><%= comment.creator.name %></a></div>
+              <% } else { %>
+                <div><strong>Author:</strong> Anonymous</div>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <small>No comments yet!</small>
+      <% } %>
+
+      <form method="post">
+        <textarea name="content" rows="8" cols="80" placeholder="Content"></textarea>
+        <input type="checkbox" name="anonymous">
+        <label>Anonymous</label>
+        <input type="submit" value="Comment!">
+      </form>
     </div>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
