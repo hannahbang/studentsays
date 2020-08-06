@@ -32,18 +32,20 @@ const generateAuthToken = () => {
 app.use((req, res, next) => {
   const authToken = req.cookies["authToken"];
   req.user = authTokens[authToken];
-
   res.locals.req = req;
-
-  next();
+  if (!["/", "/login", "/register", "/logout"].includes(req.originalUrl)) {
+    if(!req.user) {
+      res.redirect("/login");
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 });
 
 app.get("/", (req, res) => {
-  if (req.user) {
-    res.redirect("/feed");
-  } else {
-    res.render("index.html");
-  }
+  res.render("index.html");
 });
 
 app.route("/login")
@@ -104,32 +106,28 @@ app.get("/logout", (req, res) => {
 })
 
 app.get("/feed", async (req,res) => {
-  if (req.user) {
-    const category = req.query.category;
+  const category = req.query.category;
 
-    let posts;
+  let posts;
 
-    if (category) {
-      posts = await postModel.find({ category }).sort({ datetimePosted: -1 })
-    } else {
-      posts = await postModel.find({}).sort({ datetimePosted: -1 });
-    }
-
-    // ADDING CREATOR TO EACH POST
-    for (var i = 0; i < posts.length; i++) {
-      let creator;
-      if (!posts[i].anonymous) {
-        creator = await userModel.findOne({ _id: posts[i].creatorId });
-      } else {
-        creator = null;
-      }
-      posts[i] = { ...posts[i], creator };
-    }
-
-    res.render("feed.html", { posts });
+  if (category) {
+    posts = await postModel.find({ category }).sort({ datetimePosted: -1 })
   } else {
-    res.redirect("/login");
+    posts = await postModel.find({}).sort({ datetimePosted: -1 });
   }
+
+  // ADDING CREATOR TO EACH POST
+  for (var i = 0; i < posts.length; i++) {
+    let creator;
+    if (!posts[i].anonymous) {
+      creator = await userModel.findOne({ _id: posts[i].creatorId });
+    } else {
+      creator = null;
+    }
+    posts[i] = { ...posts[i], creator };
+  }
+
+  res.render("feed.html", { posts });
 });
 
 app.route("/post/:id")
@@ -179,107 +177,87 @@ app.route("/post/:id")
 app.route("/user/:username")
   .get(async (req, res) => {
     const username = req.params.username;
-    if (req.user) {
-      const user = await userModel.findOne({ username });
-      if (user) {
-        // GET POSTS
-        let posts = await postModel.find({ creatorId: user._id }).sort({ datetimePosted: -1 });
+    const user = await userModel.findOne({ username });
+    if (user) {
+      // GET POSTS
+      let posts = await postModel.find({ creatorId: user._id }).sort({ datetimePosted: -1 });
 
-        // ADDING CREATOR TO EACH POST
-        for (var i = 0; i < posts.length; i++) {
-          let creator = await userModel.findOne({ _id: posts[i].creatorId });
-          posts[i] = { ...posts[i], creator };
-        }
-
-        res.render("user.html", { user, posts });
-      } else {
-        res.send("That user doesn't exist.");
+      // ADDING CREATOR TO EACH POST
+      for (var i = 0; i < posts.length; i++) {
+        let creator = await userModel.findOne({ _id: posts[i].creatorId });
+        posts[i] = { ...posts[i], creator };
       }
+
+      res.render("user.html", { user, posts });
     } else {
-      res.redirect("/login");
+      res.send("That user doesn't exist.");
     }
   })
   .delete(async (req, res) => {
-    if (req.user) {
-      // REMOVING ALL USER POSTS FROM DB
-      const posts = await postModel.deleteMany({ creatorId: req.user._id });
+    // REMOVING ALL USER POSTS FROM DB
+    const posts = await postModel.deleteMany({ creatorId: req.user._id });
 
-      // REMOVING USER FROM DB
-      const user = await userModel.deleteOne({ _id: req.user._id });
+    // REMOVING USER FROM DB
+    const user = await userModel.deleteOne({ _id: req.user._id });
 
-      // REMOVING USER FROM COOKIES
-      const authToken = res.cookie("authToken");
-      delete authTokens[authToken];
-      res.clearCookie("authToken");
-      res.redirect("/");
-    } else {
-      res.redirect("/login");
-    }
+    // REMOVING USER FROM COOKIES
+    const authToken = res.cookie("authToken");
+    delete authTokens[authToken];
+    res.clearCookie("authToken");
+    res.redirect("/");
   });
 
 app.route("/user/:username/post")
   .get(async (req, res) => {
     const username = req.params.username;
-    if (req.user) {
-      const user = await userModel.findOne({ username });
-      if (user) {
-        if (req.user.username == user.username) {
-          res.render("make-post.html", { user });
-        } else {
-          res.send("You don't have permission to make a post for this profile.");
-        }
+    const user = await userModel.findOne({ username });
+    if (user) {
+      if (req.user.username == user.username) {
+        res.render("make-post.html", { user });
       } else {
-        res.send("That user doesn't exist.");
+        res.send("You don't have permission to make a post for this profile.");
       }
     } else {
-      res.redirect("/login");
+      res.send("That user doesn't exist.");
     }
   })
   .post(async (req, res) => {
     const username = req.params.username;
-    if (req.user) {
-      const user = await userModel.findOne({ username });
-      if (user) {
-        if (req.user.username == user.username) {
-          const title = req.body.title;
-          const content = req.body.content;
-          const category = req.body.category;
-          const anonymous = req.body.anonymous == "on" ? true : false;
-          const creatorId = user._id;
+    const user = await userModel.findOne({ username });
+    if (user) {
+      if (req.user.username == user.username) {
+        const title = req.body.title;
+        const content = req.body.content;
+        const category = req.body.category;
+        const anonymous = req.body.anonymous == "on" ? true : false;
+        const creatorId = user._id;
 
-          const newPost = new postModel({ title, content, category, datetimePosted: new Date(), creatorId, anonymous });
-          newPost.save((err, post) => {
-            if (err) throw err;
+        const newPost = new postModel({ title, content, category, datetimePosted: new Date(), creatorId, anonymous });
+        newPost.save((err, post) => {
+          if (err) throw err;
 
-            res.redirect("/feed");
-          })
-        } else {
-          res.send("You don't have permission to make a post for this profile.");
-        }
+          res.redirect("/feed");
+        })
       } else {
-        res.send("That user doesn't exist.");
+        res.send("You don't have permission to make a post for this profile.");
       }
     } else {
-      res.redirect("/login");
+      res.send("That user doesn't exist.");
     }
   });
 
 app.route("/user/:username/edit")
   .get(async (req, res) => {
     const username = req.params.username;
-    if (req.user) {
-      const user = await userModel.findOne({ username });
-      if (user) {
-        if (req.user.username == user.username) {
-          res.render("edit-user.html", { user });
-        } else {
-          res.send("You don't have permission to edit this profile.");
-        }
+    const user = await userModel.findOne({ username });
+    if (user) {
+      if (req.user.username == user.username) {
+        res.render("edit-user.html", { user });
       } else {
-        res.send("That user doesn't exist.");
+        res.send("You don't have permission to edit this profile.");
       }
     } else {
-      res.redirect("/login");
+      res.send("That user doesn't exist.");
     }
   })
   .post(async (req, res) => {
