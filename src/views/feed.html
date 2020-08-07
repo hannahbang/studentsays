@@ -39,7 +39,7 @@
                   <a class="nav-link" href="/login">Login</a>
               </li>
               <li class="nav-item">
-                  <a class="nav-link" href="/Register">Register</a>
+                  <a class="nav-link" href="/register">Register</a>
               </li>
             <% } %>
           </ul>
@@ -62,18 +62,22 @@
 
         <div class="feed">
           <% for (post of posts) { %>
-            <div class="post" onclick="window.location.href = '/post/<%= post._doc._id %>'">
-              <h3><%= post._doc.title %></h3>
-              <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
-              <% if (post.creator) { %>
-                <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
-              <% } else { %>
-                <div><strong>Author:</strong> Anonymous</div>
-              <% } %>
-              <div><strong>Category:</strong> <%= post._doc.category %></div>
-              <p>
-                <%= post._doc.content %>
-              </p>
+            <div class="post">
+              <div onclick="window.location.href = '/post/<%= post._doc._id %>'">
+                <h3><%= post._doc.title %></h3>
+                <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+                <% if (post.creator) { %>
+                  <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
+                <% } else { %>
+                  <div><strong>Author:</strong> Anonymous</div>
+                <% } %>
+                <div><strong>Category:</strong> <%= post._doc.category %></div>
+                <p>
+                  <%= post._doc.content %>
+                </p>
+              </div>
+              <button onclick="sendLike('<%= post._doc._id %>', '<%= post._doc.likes.length %>')">Like</button>
+              <small id="likes-<%= post._doc._id %>"><%= post._doc.likes.length %> likes</small>
             </div>
           <% } %>
         </div>
@@ -85,6 +89,19 @@
       const filterCategory = document.getElementById("filterCategory");
       const value = filterCategory.options[filterCategory.selectedIndex].value;
       window.location.href = `/feed/?category=${value}`;
+    }
+
+    function sendLike(postId, likeCountString) {
+      const likeCount = parseInt(likeCountString);
+      document.getElementById(`likes-${postId}`).innerHTML = `${likeCount + 1} likes`
+      fetch("/api/add-like", {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ postId })
+      });
     }
   </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

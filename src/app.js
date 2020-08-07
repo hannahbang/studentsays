@@ -232,7 +232,7 @@ app.route("/user/:username/post")
         const anonymous = req.body.anonymous == "on" ? true : false;
         const creatorId = user._id;
 
-        const newPost = new postModel({ title, content, category, datetimePosted: new Date(), creatorId, anonymous });
+        const newPost = new postModel({ title, content, category, datetimePosted: new Date(), creatorId, anonymous, likes: [] });
         newPost.save((err, post) => {
           if (err) throw err;
 
@@ -284,7 +284,24 @@ app.route("/user/:username/edit")
     authTokens[authToken] = user;
 
     res.redirect("/user/" + user.username)
-  })
+  });
+
+app.post("/api/add-like", async (req, res) => {
+  const postId = req.body.postId;
+  const post = await postModel.findOne({ _id: postId });
+  if (post) {
+    postModel.update(
+      { _id: postId },
+      { $addToSet: { likes: req.user._id } },
+      (err, post) => {
+        if (err) throw err;
+        res.send(post);
+      }
+    )
+  } else {
+    res.status(400).send();
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

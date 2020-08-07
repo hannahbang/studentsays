@@ -18,7 +18,8 @@ const postSchema = new mongoose.Schema({
   datetimePosted: Date,
   category: String,
   creatorId: String,
-  anonymous: Boolean
+  anonymous: Boolean,
+  likes: Array
 });
 
 const commentSchema = new mongoose.Schema({
