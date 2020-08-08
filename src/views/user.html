@@ -47,49 +47,72 @@
       </div>
     </nav>
 
-    <div class="container">
-      <h1><%= req.user.name %></h1>
-      <p><strong>Username:</strong> <%= req.user.username %></p>
-      <p><strong>Email:</strong> <%= req.user.email %></p>
-      <% if (req.user.birthday) { %>
-        <p><strong>Birthday:</strong> <%= req.user.birthday.toLocaleDateString('en-US') %></p>
-      <% } %>
-      <% if (req.user.gender) { %>
-        <p><strong>Gender:</strong> <%= req.user.gender %></p>
-      <% } %>
-      <% if (req.user.ethnicity) { %>
-        <p><strong>Ethnicity:</strong> <%= req.user.ethnicity %></p>
-      <% } %>
-      <% if (req.user.school) { %>
-        <p><strong>School Name:</strong> <%= req.user.school.name %></p>
-        <p><strong>School Type:</strong> <%= req.user.school.type %></p>
-        <p><strong>School Location:</strong> <%= req.user.school.location %></p>
-      <% } %>
-
-      <h1>Posts</h1>
-      <% if (posts.length != 0) { %>
-        <div class="posts">
-          <% for (post of posts) { %>
-            <div class="post">
-              <h3><%= post._doc.title %></h3>
-              <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
-              <p><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></p>
-              <p>
-                <%= post._doc.content %>
-              </p>
-            </div>
+    <div class="page-container container">
+      <div class="user-container">
+        <div class="user">
+          <h1><%= user.name %></h1>
+          <p><strong>Username:</strong> <%= user.username %></p>
+          <p><strong>Email:</strong> <%= user.email %></p>
+          <% if (user.birthday) { %>
+            <p><strong>Birthday:</strong> <%= user.birthday.toLocaleDateString('en-US') %></p>
+          <% } %>
+          <% if (user.gender) { %>
+            <p><strong>Gender:</strong> <%= user.gender %></p>
+          <% } %>
+          <% if (user.ethnicity) { %>
+            <p><strong>Ethnicity:</strong> <%= user.ethnicity %></p>
+          <% } %>
+          <% if (user.school) { %>
+            <p><strong>School Name:</strong> <%= user.school.name %></p>
+            <p><strong>School Type:</strong> <%= user.school.type %></p>
+            <p><strong>School Location:</strong> <%= user.school.location %></p>
           <% } %>
         </div>
-      <% } else { %>
-        <div><small>No posts yet!</small></div>
-      <% } %>
 
-      <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+        <% if (req.user.username == user.username) { %>
+          <div class="my-2 text-right">
+            <a class="btn btn-primary" href="/user/<%= req.user.username %>/post">Make Post</a>
+            <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+          </div>
+        <% } %>
+
+        <div class="mt-3">
+          <h2>Posts</h2>
+          <% if (posts.length != 0) { %>
+            <div class="posts">
+              <% for (post of posts) { %>
+                <div class="post">
+                  <div onclick="window.location.href = '/post/<%= post._doc._id %>'">
+                    <h3><%= post._doc.title %></h3>
+                    <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+                    <% if (post.creator) { %>
+                      <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
+                    <% } else { %>
+                      <div><strong>Author:</strong> Anonymous</div>
+                    <% } %>
+                    <div><strong>Category:</strong> <%= post._doc.category %></div>
+                    <p>
+                      <%= post._doc.content %>
+                    </p>
+                  </div>
+                  <div class="mt-3 text-right">
+                    <button class="like-btn" onclick="sendLike('<%= post._doc._id %>', '<%= post._doc.likes.length %>')">
+                      <span class="mr-1">👍</span> <span id="likes-<%= post._doc._id %>"><%= post._doc.likes.length %></span>
+                    </button>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% } else { %>
+            <div><small>No posts yet!</small></div>
+          <% } %>
+        </div>
+      </div>
     </div>
   </body>
   <script>
     function deleteAccount() {
-      fetch("/user/<%= req.user.username %>", {
+      fetch("/user/<%= user.username %>", {
         method: "DELETE"
       }).then((response) => {
         window.location.href = "/";
