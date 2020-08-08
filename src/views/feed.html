@@ -49,35 +49,60 @@
 
     <div class="page-container">
       <div class="container">
-        <h1>Feed</h1>
-
-        <select id="filterCategory">
-          <option value="" selected>---------</option>
-          <option value="Academics">Academics</option>
-          <option value="ECs">ECs</option>
-          <option value="Question">Question</option>
-        </select>
-
-        <button onclick="filterByCategory()">Filter!</button>
-
         <div class="feed">
-          <% for (post of posts) { %>
-            <div class="post">
-              <div onclick="window.location.href = '/post/<%= post._doc._id %>'">
-                <h3><%= post._doc.title %></h3>
-                <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
-                <% if (post.creator) { %>
-                  <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
-                <% } else { %>
-                  <div><strong>Author:</strong> Anonymous</div>
-                <% } %>
-                <div><strong>Category:</strong> <%= post._doc.category %></div>
-                <p>
-                  <%= post._doc.content %>
-                </p>
+          <div class="mb-3">
+            <h1>Feed</h1>
+            <select class="form-control mb-1" id="filterCategory">
+              <option value="" selected>---------</option>
+              <% if (category == "Academics") { %>
+                <option value="Academics" selected>Academics</option>
+              <% } else { %>
+                <option value="Academics">Academics</option>
+              <% } %>
+
+              <% if (category == "ECs") { %>
+                <option value="ECs" selected>ECs</option>
+              <% } else { %>
+                <option value="ECs">ECs</option>
+              <% } %>
+
+              <% if (category == "Question") { %>
+                <option value="Question" selected>Question</option>
+              <% } else { %>
+                <option value="Question">Question</option>
+              <% } %>
+            </select>
+            <div class="text-right">
+              <button class="btn btn-primary" onclick="filterByCategory()">Filter!</button>
+            </div>
+          </div>
+
+          <% if (posts.length != 0) { %>
+            <% for (post of posts) { %>
+              <div class="post">
+                <div onclick="window.location.href = '/post/<%= post._doc._id %>'">
+                  <h3><%= post._doc.title %></h3>
+                  <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+                  <% if (post.creator) { %>
+                    <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
+                  <% } else { %>
+                    <div><strong>Author:</strong> Anonymous</div>
+                  <% } %>
+                  <div><strong>Category:</strong> <%= post._doc.category %></div>
+                  <p>
+                    <%= post._doc.content %>
+                  </p>
+                </div>
+                <div class="mt-3 text-right">
+                  <button class="like-btn" onclick="sendLike('<%= post._doc._id %>', '<%= post._doc.likes.length %>')">
+                    <span class="mr-1">👍</span> <span id="likes-<%= post._doc._id %>"><%= post._doc.likes.length %></span>
+                  </button>
+                </div>
               </div>
-              <button onclick="sendLike('<%= post._doc._id %>', '<%= post._doc.likes.length %>')">Like</button>
-              <small id="likes-<%= post._doc._id %>"><%= post._doc.likes.length %> likes</small>
+            <% } %>
+          <% } else { %>
+            <div class="text-center">
+              <small>No posts yet!</small>
             </div>
           <% } %>
         </div>
@@ -93,7 +118,7 @@
 
     function sendLike(postId, likeCountString) {
       const likeCount = parseInt(likeCountString);
-      document.getElementById(`likes-${postId}`).innerHTML = `${likeCount + 1} likes`
+      document.getElementById(`likes-${postId}`).innerHTML = `${likeCount + 1}`
       fetch("/api/add-like", {
         method: "POST",
         headers: {

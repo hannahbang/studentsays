@@ -47,37 +47,57 @@
       </div>
     </nav>
 
-    <div class="container">
-      <h1>Post</h1>
+    <div class="page-container container">
+      <div class="post-container">
+        <div class="post">
+          <h3><%= post._doc.title %></h3>
+          <small><%= post._doc.datetimePosted.toLocaleDateString("en-US") %></small>
+          <% if (post.creator) { %>
+            <div><strong>Author:</strong> <a href="/user/<%= post.creator.username %>"><%= post.creator.name %></a></div>
+          <% } else { %>
+            <div><strong>Author:</strong> Anonymous</div>
+          <% } %>
+          <div><strong>Category:</strong> <%= post._doc.category %></div>
+          <p>
+            <%= post._doc.content %>
+          </p>
+          <div class="mt-3 text-right">
+            <button class="like-btn" onclick="sendLike('<%= post._doc._id %>', '<%= post._doc.likes.length %>')">
+              <span class="mr-1">👍</span> <span id="likes-<%= post._doc._id %>"><%= post._doc.likes.length %></span>
+            </button>
+          </div>
+        </div>
 
-      <div class="post">
-        <h3><%= post.title %></h3>
-      </div>
-
-      <h3>Comments</h3>
-      <% if (comments.length != 0) { %>
-        <div class="comments">
-          <% for (comment of comments) { %>
-            <div class="card comment">
-              <p><%= comment._doc.content %></p>
-              <% if (comment.creator) { %>
-                <div><strong>Author:</strong> <a href="/user/<%= comment.creator.username %>"><%= comment.creator.name %></a></div>
-              <% } else { %>
-                <div><strong>Author:</strong> Anonymous</div>
+        <div class="mt-4">
+          <h3>Comments</h3>
+          <% if (comments.length != 0) { %>
+            <div class="comments">
+              <% for (comment of comments) { %>
+                <div class="card p-2 comment">
+                  <% if (comment.creator) { %>
+                    <div><strong>Author:</strong> <a href="/user/<%= comment.creator.username %>"><%= comment.creator.name %></a></div>
+                  <% } else { %>
+                    <div><strong>Author:</strong> Anonymous</div>
+                  <% } %>
+                  <p class="mt-2 mb-0"><%= comment._doc.content %></p>
+                </div>
               <% } %>
             </div>
+          <% } else { %>
+            <small>No comments yet!</small>
           <% } %>
-        </div>
-      <% } else { %>
-        <small>No comments yet!</small>
-      <% } %>
 
-      <form method="post">
-        <textarea name="content" rows="8" cols="80" placeholder="Content"></textarea>
-        <input type="checkbox" name="anonymous">
-        <label>Anonymous</label>
-        <input type="submit" value="Comment!">
-      </form>
+          <form class="mt-3" method="post">
+            <textarea name="content" class="form-control" rows="5" placeholder="Make a comment!"></textarea>
+            <input type="checkbox" name="anonymous">
+            <label>Anonymous</label>
+            <br>
+            <div class="text-right">
+              <input class="btn btn-primary" type="submit" value="Comment!">
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

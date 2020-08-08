@@ -127,7 +127,7 @@ app.get("/feed", async (req,res) => {
     posts[i] = { ...posts[i], creator };
   }
 
-  res.render("feed.html", { posts });
+  res.render("feed.html", { posts, category });
 });
 
 app.route("/post/:id")

@@ -25,6 +25,19 @@
   }
 }
 
+.like-btn {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 5px 10px;
+
+  &:focus {
+    outline: none;
+    border: 1px solid rgb(117, 131, 255);
+    background-color: rgba(117, 131, 255, .3);
+  }
+}
+
 @media (max-width: 768px) {
   .feed {
     width: 100%;

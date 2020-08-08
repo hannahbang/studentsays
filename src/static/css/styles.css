@@ -3,6 +3,10 @@
   padding: 0;
   box-sizing: border-box; }
 
+.btn-primary {
+  background-color: #fcb033 !important;
+  border-color: #fcb033 !important; }
+
 .split-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -37,6 +41,33 @@
     .feed .post:hover {
       background-color: #eee; }
 
+.like-btn {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 5px 10px; }
+  .like-btn:focus {
+    outline: none;
+    border: 1px solid #7583ff;
+    background-color: rgba(117, 131, 255, 0.3); }
+
 @media (max-width: 768px) {
   .feed {
+    width: 100%; } }
+
+.post-container {
+  width: 500px;
+  margin: 0 auto; }
+  .post-container .post {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px; }
+    .post-container .post h3, .post-container .post p {
+      margin-bottom: 0; }
+    .post-container .post p {
+      margin-top: 15px; }
+
+@media (max-width: 768px) {
+  .post-container {
     width: 100%; } }
