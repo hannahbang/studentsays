@@ -138,8 +138,13 @@ app.route("/post/:id")
         res.send("That post doesn't exist.");
       } else {
         // ADD CREATOR TO POST
-        const postCreator = await userModel.findOne({ _id: post.creatorId });
-        post = {...post, creator: postCreator }
+        let creator;
+        if (!post.anonymous) {
+          creator = await userModel.findOne({ _id: post.creatorId });
+        } else {
+          creator = null;
+        }
+        post = {...post, creator }
 
         // GET ALL COMMENTS
         const comments = await commentModel.find({ postId });

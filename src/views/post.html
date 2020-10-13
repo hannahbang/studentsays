@@ -99,6 +99,21 @@
         </div>
       </div>
     </div>
+
+    <script>
+      function sendLike(postId, likeCountString) {
+        const likeCount = parseInt(likeCountString);
+        document.getElementById(`likes-${postId}`).innerHTML = `${likeCount + 1}`
+        fetch("/api/add-like", {
+          method: "POST",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ postId })
+        });
+      }
+    </script>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
       crossorigin="anonymous"></script>
